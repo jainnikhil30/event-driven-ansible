@@ -65,6 +65,7 @@ options:
     default: "present"
     choices: ["present", "absent", "exists", "restart"]
     type: str
+extends_documentation_fragment: ansible.eda.auth
 '''
 
 EXAMPLES = '''
