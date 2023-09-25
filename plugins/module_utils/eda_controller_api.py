@@ -314,15 +314,6 @@ class EDAControllerAPIModule(EDAControllerModule):
                 follow_redirects=True,
                 data=data
             )
-        #     response = requests.request(
-        #         method, url.geturl(),
-        #         headers=headers,
-        #         timeout=self.request_timeout,
-        #         verify=self.verify_ssl,
-        #         auth=(self.username, self.password),
-        #         allow_redirects=True,
-        #         data=data
-        #     )
         except (SSLValidationError) as ssl_err:
             self.fail_json(msg="Could not establish a secure connection to your host ({1}): {0}.".format(url.netloc, ssl_err))
         except (ConnectionError) as con_err:
