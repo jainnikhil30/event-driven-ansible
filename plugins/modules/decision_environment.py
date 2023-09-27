@@ -50,19 +50,19 @@ extends_documentation_fragment: ansible.eda.auth
 
 EXAMPLES = '''
 - name: Create EDA Decision Env
-      ansible.eda.decision_environment:
-        name: "Example Decision Environment"
-        description: "Example Decision Environment description"
-        image_url: "quay.io/test"
-        credential: "Example Credential"
+  ansible.eda.decision_environment:
+    name: "Example Decision Environment"
+    description: "Example Decision Environment description"
+    image_url: "quay.io/test"
+    credential: "Example Credential"
 
 - name: Delete EDA Decision Env
-      ansible.eda.decision_environment:
-        name: "Example Decision Environment"
-        description: "Example Decision Environment description"
-        image_url: "quay.io/test"
-        credential: "Example Credential"
-        state: absent
+  ansible.eda.decision_environment:
+    name: "Example Decision Environment"
+    description: "Example Decision Environment description"
+    image_url: "quay.io/test"
+    credential: "Example Credential"
+    state: absent
 '''
 
 from ..module_utils.eda_controller_api import EDAControllerAPIModule

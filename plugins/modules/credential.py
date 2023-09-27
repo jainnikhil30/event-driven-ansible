@@ -63,21 +63,21 @@ extends_documentation_fragment: ansible.eda.auth
 
 EXAMPLE = '''
 - name: Create EDA Credential
-      ansible.eda.credential:
-        name: "Example Credential"
-        description: "Example credential description"
-        username: "test"
-        secret: "test"
-        credential_type: "GitLab Personal Access Token"
+  ansible.eda.credential:
+    name: "Example Credential"
+    description: "Example credential description"
+    username: "test"
+    secret: "test"
+    credential_type: "GitLab Personal Access Token"
 
 - name: Delete EDA Credential
-      ansible.eda.credential:
-        name: "Example Credential"
-        description: "Example credential description"
-        username: "test"
-        secret: "test"
-        credential_type: "GitLab Personal Access Token"
-        state: absent
+  ansible.eda.credential:
+    name: "Example Credential"
+    description: "Example credential description"
+    username: "test"
+    secret: "test"
+    credential_type: "GitLab Personal Access Token"
+    state: absent
 '''
 from ..module_utils.eda_controller_api import EDAControllerAPIModule
 

@@ -56,26 +56,26 @@ extends_documentation_fragment: ansible.eda.auth
 
 EXAMPLES = '''
 - name: Create EDA Projects
-      ansible.eda.project:
-        name: "Example Project"
-        description: "Example project description"
-        url: "http://example.com/project1"
-        state: present
+  ansible.eda.project:
+    name: "Example Project"
+    description: "Example project description"
+    url: "http://example.com/project1"
+    state: present
 
 - name: Update the name of the project
-    ansible.eda.project:
-        name: "Example Project"
-        new_name: "Latest Example Project"
-        description: "Example project description"
-        url: "http://example.com/project1"
-        state: present
+  ansible.eda.project:
+    name: "Example Project"
+    new_name: "Latest Example Project"
+    description: "Example project description"
+    url: "http://example.com/project1"
+    state: present
 
 - name: Delete the project
-    ansible.eda.project:
-        name: "Example Project"
-        description: "Example project description"
-        url: "http://example.com/project1"
-        state: absent
+  ansible.eda.project:
+    name: "Example Project"
+    description: "Example project description"
+    url: "http://example.com/project1"
+    state: absent
 '''
 
 from ..module_utils.eda_controller_api import EDAControllerAPIModule

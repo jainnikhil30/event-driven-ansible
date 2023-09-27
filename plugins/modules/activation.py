@@ -70,23 +70,23 @@ extends_documentation_fragment: ansible.eda.auth
 
 EXAMPLES = '''
 - name: Create EDA Activation
-      ansible.eda.activation:
-        name: "Example Activation"
-        description: "Example Activation description"
-        project: "Example Project"
-        rulebook: "hello_controller.yml"
-        decision_environment: "Default Decision Environment"
-        enabled: False
+  ansible.eda.activation:
+    name: "Example Activation"
+    description: "Example Activation description"
+    project: "Example Project"
+    rulebook: "hello_controller.yml"
+    decision_environment: "Default Decision Environment"
+    enabled: False
 
 - name: Delete EDA Activation
-      ansible.eda.activation:
-        name: "Example Activation"
-        description: "Example Activation description"
-        project: "Example Project"
-        rulebook: "hello_controller.yml"
-        decision_environment: "Default Decision Environment"
-        enabled: False
-        state: absent
+  ansible.eda.activation:
+    name: "Example Activation"
+    description: "Example Activation description"
+    project: "Example Project"
+    rulebook: "hello_controller.yml"
+    decision_environment: "Default Decision Environment"
+    enabled: False
+    state: absent
 '''
 from ..module_utils.eda_controller_api import EDAControllerAPIModule
 
