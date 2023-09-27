@@ -113,7 +113,7 @@ def main():
     if image_url is not None:
         decision_environment_fields['image_url'] = image_url
 
-    # If the state was present and we can let the module build or update the existing credential, this will return on its own
+    # If the state was present and we can let the module build or update the existing decision environment, this will return on its own
     response = module.create_or_update_if_needed(
             decision_environment,
             decision_environment_fields,

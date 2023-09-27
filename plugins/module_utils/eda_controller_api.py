@@ -144,6 +144,7 @@ class EDAControllerModule(AnsibleModule):
 class EDAControllerAPIModule(EDAControllerModule):
     # This gets set by the make process so whatever is in here is irrelevant
     _COLLECTION_VERSION = "0.0.1-devel"
+    IDENTITY_FIELDS = {'users': 'username'}
     ENCRYPTED_STRING = "$encrypted$"
 
     def __init__(self, argument_spec, direct_params=None, error_callback=None, warn_callback=None, **kwargs):
@@ -157,10 +158,18 @@ class EDAControllerAPIModule(EDAControllerModule):
         else:
             self.update_secrets = True
 
+    @staticmethod
+    def get_name_field_from_endpoint(endpoint):
+        return EDAControllerAPIModule.IDENTITY_FIELDS.get(endpoint, 'name')
+
     def get_item_name(self, item, allow_unknown=False):
         if item:
             if 'name' in item:
                 return item['name']
+
+            for field_name in EDAControllerAPIModule.IDENTITY_FIELDS.values():
+                if field_name in item:
+                    return item[field_name]
 
         if item:
             self.exit_json(msg='Cannot determine identity field for {0} object.'.format(item.get('type', 'unknown')))
@@ -218,13 +227,9 @@ class EDAControllerAPIModule(EDAControllerModule):
         response = None
 
         if name:
-            # url_quoted_name = quote(name, safe="+")
+            name_field = self.get_name_field_from_endpoint(endpoint)
             new_data = kwargs.get('data', {}).copy()
-            # try:
-            #     new_data['name'] = url_quoted_name
-            # except ValueError:
-            #     # If we get a value error, then we didn't have an integer so we can just pass and fall down to the fail
-            new_data['name'] = name
+            new_data['{0}'.format(name_field)] = name
             new_kwargs['data'] = new_data
 
             response = self.get_endpoint(endpoint, **new_kwargs)
