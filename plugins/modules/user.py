@@ -6,12 +6,17 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ['preview'], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: user
 author: Nikhil Jain
@@ -65,9 +70,9 @@ options:
       default: "present"
       type: str
 extends_documentation_fragment: ansible.eda.auth
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create EDA User
   ansible.eda.user:
     username: "test_collection_user"
@@ -91,9 +96,10 @@ EXAMPLES = '''
     email: "test@test.com"
     password: "test"
     roles: ["Admin"]
-'''
+"""
 
 from ..module_utils.eda_controller_api import EDAControllerAPIModule
+
 
 def main():
     argument_spec = dict(
@@ -103,57 +109,60 @@ def main():
         last_name=dict(),
         email=dict(),
         password=dict(required=True, no_log=True),
-        roles=dict(type='list', elements='str'),
-        update_secrets=dict(type='bool', default=True, no_log=False),
-        state=dict(choices=['present', 'absent', 'exists'], default='present'),
+        roles=dict(type="list", elements="str"),
+        update_secrets=dict(type="bool", default=True, no_log=False),
+        state=dict(choices=["present", "absent", "exists"], default="present"),
     )
 
     # Create the module
     module = EDAControllerAPIModule(argument_spec=argument_spec)
 
     # Extract the params
-    username = module.params.get('username')
-    new_username = module.params.get('new_username')
-    roles = module.params.get('roles')
-    state = module.params.get('state')
+    username = module.params.get("username")
+    new_username = module.params.get("new_username")
+    roles = module.params.get("roles")
+    state = module.params.get("state")
 
     # Attempt to find user based on the provided name
-    user = module.get_one('users', name=username, check_exists=(state =='exists'))
+    user = module.get_one("users", name=username, check_exists=(state == "exists"))
 
-    if state == 'absent':
-        module.delete_if_needed(user, endpoint='users')
+    if state == "absent":
+        module.delete_if_needed(user, endpoint="users")
 
     role_id = []
     if roles:
         for role in roles:
-            id = module.resolve_name_to_id('roles', role)
+            id = module.resolve_name_to_id("roles", role)
             role_id.append(id)
 
     # User Data that will be sent for create/update
     user_fields = {
-        'username': new_username if new_username else (module.get_item_name(user) if user else username),
+        "username": new_username
+        if new_username
+        else (module.get_item_name(user) if user else username),
     }
     for field_name in (
-        'first_name',
-        'last_name',
-        'email',
-        'password',
+        "first_name",
+        "last_name",
+        "email",
+        "password",
     ):
         field_value = module.params.get(field_name)
         if field_name is not None:
             user_fields[field_name] = field_value
 
     if len(role_id) != 0:
-        user_fields['roles'] = role_id
+        user_fields["roles"] = role_id
 
     # If the state was present and we can let the module build or update the existing user, this will return on its own
-    response = module.create_or_update_if_needed(
+    module.create_or_update_if_needed(
         user,
         user_fields,
-        endpoint='users',
-        item_type = 'user',
+        endpoint="users",
+        item_type="user",
     )
     module.exit_json(**module.json_output)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

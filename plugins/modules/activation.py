@@ -6,11 +6,16 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ['preview'], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: activation
 author: Nikhil Jain
@@ -66,9 +71,9 @@ options:
     choices: ["present", "absent", "exists", "restart"]
     type: str
 extends_documentation_fragment: ansible.eda.auth
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create EDA Activation
   ansible.eda.activation:
     name: "Example Activation"
@@ -87,62 +92,71 @@ EXAMPLES = '''
     decision_environment: "Default Decision Environment"
     enabled: False
     state: absent
-'''
+"""
+
+
 from ..module_utils.eda_controller_api import EDAControllerAPIModule
+
 
 def main():
     argument_spec = dict(
-        name=dict(type='str', required=True),
+        name=dict(type="str", required=True),
         description=dict(required=False),
-        project=dict(type='str', required=True),
-        rulebook=dict(type='str', required=True),
-        extra_vars=dict(type='str', default=''),
-        restart_policy=dict(type='str', default='always'),
-        enabled=dict(type='bool', default=True),
-        decision_environment=dict(type='str', required=True),
-        state=dict(choices=['present', 'absent', 'exists', 'restart'], default='present'),
+        project=dict(type="str", required=True),
+        rulebook=dict(type="str", required=True),
+        extra_vars=dict(type="str", default=""),
+        restart_policy=dict(type="str", default="always"),
+        enabled=dict(type="bool", default=True),
+        decision_environment=dict(type="str", required=True),
+        state=dict(
+            choices=["present", "absent", "exists", "restart"], default="present"
+        ),
     )
 
     # Create the module
     module = EDAControllerAPIModule(argument_spec=argument_spec)
 
     # Extract the params
-    name = module.params.get('name')
-    project = module.params.get('project')
-    rulebook = module.params.get('rulebook')
-    restart_policy = module.params.get('restart_policy')
-    enabled = module.params.get('enabled')
-    decision_environment = module.params.get('decision_environment')
-    state = module.params.get('state')
+    name = module.params.get("name")
+    project = module.params.get("project")
+    rulebook = module.params.get("rulebook")
+    restart_policy = module.params.get("restart_policy")
+    enabled = module.params.get("enabled")
+    decision_environment = module.params.get("decision_environment")
+    state = module.params.get("state")
 
     # get the project id
     project_id = None
     if project:
-        project_id = module.resolve_name_to_id('projects', project)
+        project_id = module.resolve_name_to_id("projects", project)
 
     # get the rulebook id
     rulebook_id = None
     if rulebook:
-        rulebook_id = module.resolve_name_to_id('rulebooks', rulebook)
+        rulebook_id = module.resolve_name_to_id("rulebooks", rulebook)
 
     # get the decision environment id
     decision_environment_id = None
     if decision_environment:
-        decision_environment_id = module.resolve_name_to_id('decision-environments', decision_environment)
+        decision_environment_id = module.resolve_name_to_id(
+            "decision-environments", decision_environment
+        )
 
     # Attempt to find rulebook activation based on the provided name
-    activation = module.get_one('activations', name=name, check_exists=(state == 'exists'))
+    activation = module.get_one(
+        "activations", name=name, check_exists=(state == "exists")
+    )
 
-    if state == 'absent':
-        module.delete_if_needed(activation, endpoint='activations')
+    if state == "absent":
+        module.delete_if_needed(activation, endpoint="activations")
 
     # Activation Data that will be sent for create/update
     activation_fields = {
-        'name': module.get_item_name(activation) if activation else name,
+        "name": module.get_item_name(activation) if activation else name,
     }
     for field_name in (
-            'description',
-            'extra_vars',
+        "description",
+        "extra_vars",
     ):
         field_value = module.params.get(field_name)
         if field_name is not None:
@@ -150,33 +164,34 @@ def main():
 
     if project_id is not None:
         # this is resolved earlier, so save an API call and don't do it again in the loop above
-        activation_fields['project_id'] = project_id
+        activation_fields["project_id"] = project_id
 
     if rulebook_id is not None:
         # this is resolved earlier, so save an API call and don't do it again in the loop above
-        activation_fields['rulebook_id'] = rulebook_id
+        activation_fields["rulebook_id"] = rulebook_id
 
     if decision_environment_id is not None:
         # this is resolved earlier, so save an API call and don't do it again in the loop above
-        activation_fields['decision_environment_id'] = decision_environment_id
+        activation_fields["decision_environment_id"] = decision_environment_id
 
     if restart_policy is not None:
-        activation_fields['restart_policy'] = restart_policy
+        activation_fields["restart_policy"] = restart_policy
 
     if restart_policy is not None:
-        activation_fields['restart_policy'] = restart_policy
+        activation_fields["restart_policy"] = restart_policy
 
     if enabled is not None:
-        activation_fields['is_enabled'] = enabled
+        activation_fields["is_enabled"] = enabled
 
     # If the state was present and we can let the module build or update the existing activation, this will return on its own
-    response = module.create_or_update_if_needed(
-            activation,
-            activation_fields,
-            endpoint='activations',
-            item_type='activation',
-        )
+    module.create_or_update_if_needed(
+        activation,
+        activation_fields,
+        endpoint="activations",
+        item_type="activation",
+    )
     module.exit_json(**module.json_output)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

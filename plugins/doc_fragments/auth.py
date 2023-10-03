@@ -9,9 +9,8 @@ __metaclass__ = type
 
 
 class ModuleDocFragment(object):
-
     # Automation Platform EDA Controller documentation fragment
-    DOCUMENTATION = r'''
+    DOCUMENTATION = r"""
 options:
   eda_controller_host:
     description:
@@ -41,4 +40,4 @@ options:
     - Defaults to 10s, but this is handled by the shared module_utils code
     - If value not set, will try environment variable C(EDA_CONTROLLER_REQUEST_TIMEOUT)
     type: float
-'''
+"""

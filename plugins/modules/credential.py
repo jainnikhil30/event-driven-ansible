@@ -6,11 +6,16 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ['preview'], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: credential
 author: Nikhil Jain
@@ -59,9 +64,9 @@ options:
     choices: ["present", "absent", "exists"]
     type: str
 extends_documentation_fragment: ansible.eda.auth
-'''
+"""
 
-EXAMPLE = '''
+EXAMPLE = """
 - name: Create EDA Credential
   ansible.eda.credential:
     name: "Example Credential"
@@ -78,8 +83,11 @@ EXAMPLE = '''
     secret: "test"
     credential_type: "GitLab Personal Access Token"
     state: absent
-'''
+"""
+
+
 from ..module_utils.eda_controller_api import EDAControllerAPIModule
+
 
 def main():
     argument_spec = dict(
@@ -89,63 +97,65 @@ def main():
         username=dict(type="str", required=True),
         secret=dict(type="str", required=True, no_log=True),
         credential_type=dict(
-              type="str",
-              required=True,
-              choices=[
-                   "GitHub Personal Access Token",
-                   "GitLab Personal Access Token",
-                   "Container Registry",
-              ],
+            type="str",
+            required=True,
+            choices=[
+                "GitHub Personal Access Token",
+                "GitLab Personal Access Token",
+                "Container Registry",
+            ],
         ),
-        state=dict(choices=['present', 'absent', 'exists'], default='present'),
+        state=dict(choices=["present", "absent", "exists"], default="present"),
     )
 
     # Create the module
     module = EDAControllerAPIModule(argument_spec=argument_spec)
 
     # Extract the params
-    name = module.params.get('name')
-    new_name = module.params.get('new_name')
-    username = module.params.get('username')
-    secret= module.params.get('secret')
-    credential_type = module.params.get('credential_type')
-    state = module.params.get('state')
+    name = module.params.get("name")
+    new_name = module.params.get("new_name")
+    username = module.params.get("username")
+    secret = module.params.get("secret")
+    credential_type = module.params.get("credential_type")
+    state = module.params.get("state")
 
     # Attempt to find credential based on the provided name
-    credential = module.get_one('credentials', name=name, check_exists=(state == 'exists'))
+    credential = module.get_one(
+        "credentials", name=name, check_exists=(state == "exists")
+    )
 
-    if state == 'absent':
-        module.delete_if_needed(credential, endpoint='credentials')
+    if state == "absent":
+        module.delete_if_needed(credential, endpoint="credentials")
 
     # Project Data that will be sent for create/update
     credential_fields = {
-        'name': new_name if new_name else (module.get_item_name(credential) if credential else name),
+        "name": new_name
+        if new_name
+        else (module.get_item_name(credential) if credential else name),
     }
-    for field_name in (
-            'description'
-
-    ):
+    for field_name in "description":
         field_value = module.params.get(field_name)
         if field_name is not None:
             credential_fields[field_name] = field_value
 
     if username is not None:
-        credential_fields['username'] = username
+        credential_fields["username"] = username
 
     if secret is not None:
-        credential_fields['secret'] = secret
+        credential_fields["secret"] = secret
 
     if credential_type is not None:
-        credential_fields['credential_type'] = credential_type
+        credential_fields["credential_type"] = credential_type
 
     # If the state was present and we can let the module build or update the existing credential, this will return on its own
-    response = module.create_or_update_if_needed(
-            credential,
-            credential_fields,
-            endpoint='credentials',
-            item_type='credential',
-        )
+    module.create_or_update_if_needed(
+        credential,
+        credential_fields,
+        endpoint="credentials",
+        item_type="credential",
+    )
     module.exit_json(**module.json_output)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

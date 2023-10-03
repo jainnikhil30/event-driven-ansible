@@ -6,12 +6,17 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ['preview'], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: project
 author: Nikhil Jain
@@ -52,9 +57,9 @@ options:
 requirements:
   - The 'requests' Python module must be installed.
 extends_documentation_fragment: ansible.eda.auth
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Create EDA Projects
   ansible.eda.project:
     name: "Example Project"
@@ -76,46 +81,50 @@ EXAMPLES = '''
     description: "Example project description"
     url: "http://example.com/project1"
     state: absent
-'''
+"""
+
 
 from ..module_utils.eda_controller_api import EDAControllerAPIModule
+
 
 def main():
     argument_spec = dict(
         name=dict(required=True),
         new_name=dict(),
-        description = dict(required=False),
+        description=dict(required=False),
         url=dict(required=True),
         credential=dict(required=False),
-        state=dict(choices=['present', 'absent', 'exists'], default='present'),
+        state=dict(choices=["present", "absent", "exists"], default="present"),
     )
 
     # Create the module
     module = EDAControllerAPIModule(argument_spec=argument_spec)
 
     # Extract the params
-    name = module.params.get('name')
-    new_name = module.params.get('new_name')
-    credential = module.params.get('credential')
-    state = module.params.get('state')
+    name = module.params.get("name")
+    new_name = module.params.get("new_name")
+    credential = module.params.get("credential")
+    state = module.params.get("state")
 
     crendential_id = None
     if credential:
-        crendential_id = module.resolve_name_to_id('credentials', credential)
+        crendential_id = module.resolve_name_to_id("credentials", credential)
 
     # Attempt to find project based on the provided name
-    project = module.get_one('projects', name=name, check_exists=(state =='exists'))
+    project = module.get_one("projects", name=name, check_exists=(state == "exists"))
 
-    if state == 'absent':
-        module.delete_if_needed(project, endpoint='projects')
+    if state == "absent":
+        module.delete_if_needed(project, endpoint="projects")
 
     # Project Data that will be sent for create/update
     project_fields = {
-        'name': new_name if new_name else (module.get_item_name(project) if project else name),
+        "name": new_name
+        if new_name
+        else (module.get_item_name(project) if project else name),
     }
     for field_name in (
-        'description',
-        'url',
+        "description",
+        "url",
     ):
         field_value = module.params.get(field_name)
         if field_name is not None:
@@ -123,16 +132,17 @@ def main():
 
     if crendential_id is not None:
         # this is resolved earlier, so save an API call and don't do it again in the loop above
-        project_fields['credential'] = crendential_id
+        project_fields["credential"] = crendential_id
 
     # If the state was present and we can let the module build or update the existing project, this will return on its own
-    response = module.create_or_update_if_needed(
+    module.create_or_update_if_needed(
         project,
         project_fields,
-        endpoint='projects',
-        item_type = 'project',
+        endpoint="projects",
+        item_type="project",
     )
     module.exit_json(**module.json_output)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
