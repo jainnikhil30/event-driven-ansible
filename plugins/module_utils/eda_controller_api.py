@@ -21,13 +21,6 @@ except ImportError:
     except ImportError:
         raise AssertionError('To use this plugin or module with ansible-core 2.11, you need to use Python < 3.12 with distutils.version present')
 
-try:
-    import yaml
-
-    HAS_YAML = True
-except ImportError:
-    HAS_YAML = False
-
 
 class ItemNotDefined(Exception):
     pass
@@ -142,8 +135,6 @@ class EDAControllerModule(AnsibleModule):
 
 
 class EDAControllerAPIModule(EDAControllerModule):
-    # This gets set by the make process so whatever is in here is irrelevant
-    _COLLECTION_VERSION = "0.0.1-devel"
     IDENTITY_FIELDS = {'users': 'username'}
     ENCRYPTED_STRING = "$encrypted$"
 
@@ -523,7 +514,7 @@ class EDAControllerAPIModule(EDAControllerModule):
                     return True
         return False
 
-    def update_if_needed(self, existing_item, new_item, endpoint, on_update=None, auto_exit=True):
+    def update_if_needed(self, existing_item, new_item, endpoint, item_type, on_update=None, auto_exit=True):
         # This will exit from the module on its own
         # If the method successfully updates an item and on_update param is defined,
         #   the on_update parameter will be called as a method pasing in this object and the json from the response
@@ -536,6 +527,10 @@ class EDAControllerAPIModule(EDAControllerModule):
 
             # If we have an item, we can see if it needs an update
             try:
+                if item_type == 'user':
+                    item_name = existing_item['username']
+                else:
+                    item_name = existing_item['name']
                 item_id = existing_item['id']
             except KeyError as ke:
                 self.fail_json(msg="Unable to process update of item due to missing data {0}".format(ke))
@@ -582,7 +577,7 @@ class EDAControllerAPIModule(EDAControllerModule):
         self, existing_item, new_item, endpoint=None, item_type='unknown', on_create=None, on_update=None, auto_exit=True
     ):
         if existing_item:
-            return self.update_if_needed(existing_item, new_item, endpoint, on_update=on_update, auto_exit=auto_exit)
+            return self.update_if_needed(existing_item, new_item, endpoint, item_type=item_type, on_update=on_update, auto_exit=auto_exit)
         else:
             return self.create_if_needed(
                 existing_item, new_item, endpoint, on_create=on_create, item_type=item_type, auto_exit=auto_exit
